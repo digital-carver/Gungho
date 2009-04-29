@@ -23,11 +23,15 @@ sub private_172_16_X_X :Tests(4) {
 
     foreach my $host qw(172.16.1.1 172.31.1.1) {
         my $res = $self->fetch(HTTP::Request->new(GET => "http://$host"));
-        ok($res->is_error);
+        if (! ok($res->is_error)) {
+            note($res->as_string);
+        }
     }
     foreach my $host qw(172.15.1.1 172.32.1.1) {
         my $res = $self->fetch(HTTP::Request->new(GET => "http://$host"));
-        ok($res->is_success);
+        if (! ok($res->is_success)) {
+            note($res->as_string);
+        }
     }
 }
 

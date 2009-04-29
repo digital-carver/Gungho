@@ -7,9 +7,10 @@ requires 'Exception::Class';
 requires 'LWP::UserAgent';
 requires 'Moose';
 requires 'MooseX::AttributeHelpers';
+requires 'Net::DNS';
+requires 'Regexp::Common';
 
-recommends 'Regexp::Common';
-
+test_requires 'Test::More' => '0.82';
 test_requires 'Test::UseAllModules';
 test_requires 'Test::Class';
 

@@ -1,16 +1,11 @@
 package Gungho::Trait::BlockPrivateIP;
 use Moose::Role;
 use Gungho::Exception;
+use Regexp::Common qw(net);
 
-my $re;
+my $IPADDRESS_RE;
 BEGIN {
-    if (0){ # eval "use Regexp::Common qw(net); 1") {
-#        $re = qr/^$RE{net}{IPv4}{-keep}$/;
-    } else {
-        my $ipunit = '25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}';
-        my $ipsep  = '[.]';
-        $re = "^(($ipunit)$ipsep($ipunit)$ipsep($ipunit)$ipsep($ipunit))\$";
-    }
+    $IPADDRESS_RE = qr/^$RE{net}{IPv4}{-keep}$/;
 }
 
 before verify_request => sub {
@@ -18,7 +13,7 @@ before verify_request => sub {
     my $req  = shift;
 
     my $address = $req->uri->host;
-    if ($address =~ /$re/x) {
+    if ($address =~ /$IPADDRESS_RE/x) {
         my ($o1, $o2, $o3, $o4) = ($2, $3, $4, $5);
 
         my $is_private = 
