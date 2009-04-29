@@ -10,6 +10,7 @@ extends 'Gungho::Test';
 sub setup_block_ip :Test(setup) {
     my $self = shift;
     $self->add_trait('Gungho::Trait::BlockPrivateIP');
+    $self->add_trait('Gungho::Trait::RobotRules');
 }
 
 sub search_cpan_org :Test {

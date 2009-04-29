@@ -26,10 +26,8 @@ sub _build_resolver { return Net::DNS::Resolver->new }
 sub handle_request {
     my ($self, $req) = @_;
 
-    eval {
-        my $res = $self->fetch($req);
-        $self->handle_response($res);
-    };
+    my $res = $self->fetch($req);
+    $self->handle_response($res);
 
     return ();
 }
@@ -51,6 +49,7 @@ sub fetch {
 }
 
 sub verify_request {}
+sub handle_response {}
 
 sub prepare_request {
     my ($self, $req) = @_;
@@ -74,5 +73,7 @@ sub prepare_request {
 
     return ();
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

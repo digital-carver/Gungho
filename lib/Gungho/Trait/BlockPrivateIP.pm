@@ -1,5 +1,6 @@
 package Gungho::Trait::BlockPrivateIP;
 use Moose::Role;
+use namespace::clean -except => qw(meta);
 use Gungho::Exception;
 use Regexp::Common qw(net);
 
