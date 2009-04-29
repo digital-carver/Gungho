@@ -63,7 +63,8 @@ sub prepare_request {
             foreach my $rr ($query->answer) {
                 next unless $rr->type eq "A";
                 $req->header('X-Original-Host', $host);
-                $req->header('Host', $rr->address);
+                $req->header('Host', $host);
+                $req->uri->host($rr->address);
                 last;
             }
         } else {

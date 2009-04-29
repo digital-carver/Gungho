@@ -12,6 +12,12 @@ sub setup_block_ip :Test(setup) {
     $self->add_trait('Gungho::Trait::BlockPrivateIP');
 }
 
+sub search_cpan_org :Test {
+    my $self = shift;
+    my $res = $self->fetch(HTTP::Request->new(GET => 'http://search.cpan.org'));
+    ok($res->is_success);
+}
+
 sub private_127_X_X_X :Test {
     my $self = shift;
     my $res = $self->fetch(HTTP::Request->new(GET => 'http://127.0.0.1'));
