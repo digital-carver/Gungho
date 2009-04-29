@@ -1,5 +1,5 @@
 
-package Gungho::Test::Live::Simple;
+package Gungho::Test::Live;
 use base 'Test::Class';
 use Moose;
 use namespace::clean -except => qw(meta);
