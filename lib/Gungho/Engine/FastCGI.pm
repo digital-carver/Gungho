@@ -114,6 +114,8 @@ sub run {
 
         $proc_manager && $proc_manager->pm_post_dispatch();
     }
+
+    return ();
 }
 
 1;

@@ -11,7 +11,18 @@ has agent => (
 );
 
 sub _build_agent {
-    LWP::UserAgent->new();
+    return LWP::UserAgent->new();
+}
+
+sub handle_request {
+    my ($self, $req) = @_;
+
+    eval {
+        my $res = $self->fetch($req);
+        $self->handle_response($res);
+    };
+
+    return ();
 }
 
 sub fetch {
@@ -20,13 +31,11 @@ sub fetch {
     my $res;
     eval {
         $self->verify_request($req);
-
         $res = $self->agent->request($req);
     };
     if ($@) {
         $res = HTTP::Response->new(500, $@);
     }
-
     return $res;
 }
 

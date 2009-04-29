@@ -9,7 +9,7 @@ BEGIN {
     } else {
         my $ipunit = '25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}';
         my $ipsep  = '[.]';
-        $re = qr/^(($ipunit)$ipsep($ipunit)$ipsep($ipunit)$ipsep($ipunit))$/;
+        $re = "^(($ipunit)$ipsep($ipunit)$ipsep($ipunit)$ipsep($ipunit))\$";
     }
 }
 
@@ -18,7 +18,7 @@ before verify_request => sub {
     my $req  = shift;
 
     my $address = $req->uri->host;
-    if ($address =~ /$re/) {
+    if ($address =~ /$re/x) {
         my ($o1, $o2, $o3, $o4) = ($2, $3, $4, $5);
 
         my $is_private = 
