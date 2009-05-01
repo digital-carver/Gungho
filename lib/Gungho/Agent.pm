@@ -3,7 +3,6 @@ use Moose;
 use namespace::clean -except => qw(meta);
 use LWP::UserAgent;
 use Net::DNS;
-use Regexp::Common qw(net);
 
 with 'MooseX::Traits';
 
@@ -19,7 +18,6 @@ has resolver => (
     lazy_build => 1
 );
 
-my $IPADDRESS_RE = qr/^$RE{net}{IPv4}{-keep}$/;
 sub _build_agent { return LWP::UserAgent->new() }
 sub _build_resolver { return Net::DNS::Resolver->new }
 
@@ -41,6 +39,7 @@ sub fetch {
         $self->prepare_request($req);
         $self->verify_request($req);
         $res = $self->agent->request($req);
+        $self->fixup_response($res);
     };
     if (my $e = $@) {
         $res = HTTP::Response->new(500, $e);
@@ -49,30 +48,9 @@ sub fetch {
 }
 
 sub verify_request {}
+sub prepare_request {}
 sub handle_response {}
-
-sub prepare_request {
-    my ($self, $req) = @_;
-
-    my $host = $req->header('Host') || $req->uri->host;
-
-    if ($host !~ /$IPADDRESS_RE/x) {
-        my $query = $self->resolver->search($host);
-        if ($query) {
-            foreach my $rr ($query->answer) {
-                next unless $rr->type eq "A";
-                $req->header('X-Original-Host', $host);
-                $req->header('Host', $host);
-                $req->uri->host($rr->address);
-                last;
-            }
-        } else {
-            die("DNS lookup for $host failed: " . $self->resolver->errorstring);
-        }
-    }
-
-    return ();
-}
+sub fixup_response {}
 
 __PACKAGE__->meta->make_immutable;
 
