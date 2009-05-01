@@ -1,5 +1,5 @@
 package Gungho::Engine::FastCGI;
-use Moose;
+use Moose::Role;
 use FCGI;
 
 with 'Gungho::Role::Engine';
