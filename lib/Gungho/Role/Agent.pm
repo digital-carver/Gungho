@@ -1,8 +1,6 @@
-package Gungho::Agent;
-use Moose;
+package Gungho::Role::Agent;
+use Moose::Role;
 use namespace::clean -except => qw(meta);
-use LWP::UserAgent;
-use Net::DNS;
 
 with 'MooseX::Traits';
 
@@ -18,8 +16,9 @@ has resolver => (
     lazy_build => 1
 );
 
-sub _build_agent { return LWP::UserAgent->new() }
-sub _build_resolver { return Net::DNS::Resolver->new }
+sub _build_agent {}
+
+sub _build_resolver {}
 
 sub handle_request {
     my ($self, $req) = @_;
@@ -52,6 +51,5 @@ sub prepare_request {}
 sub handle_response {}
 sub fixup_response {}
 
-__PACKAGE__->meta->make_immutable;
-
 1;
+

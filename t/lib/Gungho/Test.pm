@@ -1,48 +1,56 @@
 package Gungho::Test;
 use Moose;
-use MooseX::AttributeHelpers;
+use Moose::Util::TypeConstraints;
+use Test::FITesque::Test;
+
 use namespace::clean -except => qw(meta);
-use HTTP::Request;
-use Test::MockObject::Extends;
 
-extends 'Test::Class';
-
-has traits => (
-    metaclass => 'Collection::Array',
-    is => 'rw',
-    isa => 'ArrayRef',
-    default => sub { [] },
-    provides => {
-        push => 'add_trait'
+subtype 'Gungho::Test::FixtureSpec'
+    => as 'ArrayRef',
+;
+coerce 'Gungho::Test::FixtureSpec'
+    => from 'Str'
+    => via  {
+        my $class = $_;
+        if ($class !~ s/^\+//) {
+            $class = "Gungho::Test::" . $class;
+        }
+        Class::MOP::load_class($class);
+        [ $class ]
     }
+;
+
+has fixture => (
+    is => 'ro',
+    isa => 'Gungho::Test::FixtureSpec',
+    coerce => 1
 );
 
-has agent => (
-    is => 'rw',
-    isa => 'Gungho::Agent',
-    lazy_build => 1,
-    handles => [ 'fetch' ]
+has data => (
+    is => 'ro',
+    isa => 'ArrayRef[ArrayRef]',
+    lazy_build => 1
 );
 
-sub new {
-    my $class = shift;
-    my $self  = $class->SUPER::new(@_);
-    $self = $class->meta->new_object(
-        __INSTANCE__ => $self,
-        @_
-    );
-    return $self;
+sub fixture_class {
+    return $_[0]->fixture->[0];
+}
+sub _build_data {
+    my $self = shift;
+    my $fixture_class = $self->fixture_class;
+    my $data = $fixture_class->default_data;
+    return $data;
 }
 
-sub _build_agent {
+sub run_tests {
     my $self = shift;
-    Class::MOP::load_class('Gungho::Agent');
-    Gungho::Agent->new_with_traits(
-        traits => $self->traits,
-        agent  => Test::MockObject::Extends->new(
-            LWP::UserAgent->new()
-        )->set_always( request => HTTP::Response->new(200, "OK") )
-    );
+    Test::FITesque::Test->new({
+        data => [
+            $self->fixture,
+            @{ $self->data },
+        ]
+    })->run_tests;
 }
 
 1;
+

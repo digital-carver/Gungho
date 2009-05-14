@@ -1,16 +1,27 @@
 
 package Gungho::Test::Live;
-use base 'Test::Class';
 use Moose;
 use namespace::clean -except => qw(meta);
 use Test::More;
+use Test::MockObject;
+use LWP::UserAgent;
 
-extends 'Gungho::Test';
+BEGIN { extends 'Gungho::Test::Fixture' };
 
-sub setup_block_ip :Test(setup) {
-    my $self = shift;
-    $self->add_trait('Gungho::Trait::BlockPrivateIP');
-    $self->add_trait('Gungho::Trait::RobotRules');
+override _build_traits => sub {
+    return [
+        'Engine::Embed',
+        'Trait::BlockPrivateIP',
+#        'Trait::RobotRules'
+    ]
+};
+
+sub _build_agent_args {
+    return [
+        agent  => Test::MockObject::Extends->new(
+            LWP::UserAgent->new()
+        )->set_always( request => HTTP::Response->new(200, "OK") )
+    ]
 }
 
 sub search_cpan_org :Test {
@@ -25,7 +36,7 @@ sub private_127_X_X_X :Test {
     ok($res->is_error);
 }
 
-sub private_172_16_X_X :Tests(4) {
+sub private_172_16_X_X :Test :Plan(4) {
     my $self = shift;
 
     foreach my $host qw(172.16.1.1 172.31.1.1) {
@@ -42,7 +53,7 @@ sub private_172_16_X_X :Tests(4) {
     }
 }
 
-sub private_192_168_X_X :Tests(2) {
+sub private_192_168_X_X :Test :Plan(2) {
     my $self = shift;
     foreach my $host qw(192.168.1.1 192.168.51.14) {
         my $res = $self->fetch(HTTP::Request->new(GET => "http://$host"));

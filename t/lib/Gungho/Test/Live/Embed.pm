@@ -1,10 +1,9 @@
 package Gungho::Test::Live::Embed;
-use base 'Test::Class';
 use Moose;
 use namespace::clean -except => qw(meta);
 use Test::More;
 
-extends 'Gungho::Test';
+BEGIN { extends 'Gungho::Test::Fixture' }
 
 sub setup_component :Test(setup) {
     my $self = shift;

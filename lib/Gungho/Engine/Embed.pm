@@ -2,18 +2,33 @@ package Gungho::Engine::Embed;
 use Moose::Role;
 use MooseX::AttributeHelpers;
 
-with 'Gungho::Role::Engine';
+with
+    'Gungho::Role::Engine',
+    'Gungho::Role::Agent'
+;
 
 has requests => (
     metaclass => 'Collection::Array',
     is => 'ro',
     isa => 'ArrayRef[HTTP::Request]',
-    default => sub { [] },
+    lazy_build => 1,
     provides => {
         push  => 'add_request',
         shift => 'next_request',
     }
 );
+
+sub _build_requests { [] }
+
+sub _build_agent {
+    Class::MOP::load_class("LWP::UserAgent");
+    return LWP::UserAgent->new();
+}
+
+sub _build_resolver {
+    Class::MOP::load_class("Net::DNS::Resolver");
+    return Net::DNS::Resolver->new();
+}
 
 sub run {
     my $self = shift;
