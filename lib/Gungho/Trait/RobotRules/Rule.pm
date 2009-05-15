@@ -4,7 +4,7 @@ use namespace::clean -except => qw(meta);
 use URI;
 
 has rules => (
-    is => 'rw',
+    is => 'ro',
     isa => 'HashRef'
 );
 
@@ -41,4 +41,3 @@ sub is_me {
 
 __PACKAGE__->meta->make_immutable;
 
-1;

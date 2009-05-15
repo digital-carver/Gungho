@@ -2,13 +2,14 @@ package Gungho::Test::Core::RobotRules;
 use Moose;
 use MooseX::NonMoose;
 BEGIN { extends 'Test::FITesque::Fixture' }
-use Test::More;
 use Test::MockObject;
+use Test::More;
+use Test::Exception;
 use LWP::UserAgent;
 
 use namespace::clean -except => qw(meta);
 
-with 'Gungho::Test::Fixture';
+with 'Gungho::Test::Role::Basic';
 
 after setup => sub {
     my $self = shift;
@@ -18,41 +19,31 @@ after setup => sub {
     );
 };
 
-sub basic_robotrules :Test :Plan(3) {
+sub basic_robotrules :Test :Plan(6) {
     my ($self, %args) = @_;
 
-    my $agent = $self->agent;
-    local $agent->{agent} = 
-        Test::MockObject::Extends->new( LWP::UserAgent->new() )
-            ->mock( request => sub {
-                my ($self, $request) = @_;
-
-                if ($request->uri->path eq '/robots.txt') {
-                    return HTTP::Response->new(200, "OK", undef, <<EOM);
+    $self->gungho->agent->mock(
+        request => sub {
+            my ($self, $request) = @_;
+            if ($request->uri->path eq '/robots.txt') {
+                return HTTP::Response->new(200, "OK", undef, <<EOM);
 User-Agent: *
 Disallow: /disallowed
 EOM
-                } else {
-                    return HTTP::Response->new(200, "OK", undef, "OK");
-                }
-            })
-    ;
+            } else {
+                return HTTP::Response->new(200, "OK", undef, "OK");
+            }
+        }
+    );
 
-    {
-        my $res = $self->fetch(HTTP::Request->new(GET => 'http://localhost'));
-        ok ($res->is_success) or
-            note(explain($res));
-    }
-
-    {
-        my $res = $self->fetch(HTTP::Request->new(GET => 'http://localhost/disallowed'));
-        ok ($res->is_error);
-    }
-
-    {
-        my $res = $self->fetch(HTTP::Request->new(GET => 'http://localhost/allowed'));
-        ok ($res->is_success);
-    }
+    lives_ok {
+        $self->get_ok('http://localhost');
+        is( ($self->gungho->agent->call_args(1))[1]->uri, 'http://localhost/robots.txt');
+        is( ($self->gungho->agent->call_args(2))[1]->uri, 'http://localhost');
+        $self->get_error('http://localhost/disallowed');
+        $self->get_ok('http://localhost/allowed');
+    } "HTTP request lives_ok";
+    $self->gungho->agent->unmock('_make_request');
 }
         
 

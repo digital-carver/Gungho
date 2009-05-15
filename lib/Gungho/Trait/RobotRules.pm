@@ -3,6 +3,7 @@ use Moose::Role;
 use namespace::clean -except => qw(meta);
 use Gungho::Exception;
 use Gungho::Trait::RobotRules::Rule;
+use Gungho::Trait::RobotRules::NoRule;
 use WWW::RobotRules::Parser;
 
 has robot_rules_parser => (
@@ -14,6 +15,9 @@ has robot_rules_parser => (
 before verify_request => sub {
     my $self = shift;
     my $req  = shift;
+
+    # Have we verified this before? (do cache)
+
     if ($req->uri->path ne '/robots.txt') {
         my $rule = $self->load_rule($req);
         if (! $rule->allowed($req->uri)) {
@@ -38,6 +42,8 @@ sub load_rule {
         if ($res->is_success) {
             my $h = $self->robot_rules_parser->parse("http://$host", $res->content);
             $rule = Gungho::Trait::RobotRules::Rule->new(rules => $h);
+        } else {
+            $rule = Gungho::Trait::RobotRules::NoRule->instance;
         }
     }
 
