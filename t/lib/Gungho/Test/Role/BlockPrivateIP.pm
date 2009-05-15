@@ -4,6 +4,7 @@ use parent 'Test::FITesque::Fixture';
 use namespace::clean -except => qw(meta);
 use Test::More;
 use Test::MockObject;
+use Test::Exception;
 use LWP::UserAgent;
 
 with 'Gungho::Test::Fixture';
@@ -16,42 +17,39 @@ after setup => sub {
     );
 };
 
-sub _build_agent_args {
-    return [
-        agent  => Test::MockObject::Extends->new(
-            LWP::UserAgent->new()
-        )->set_always( request => HTTP::Response->new(200, "OK") )
-    ]
+around qw( private_127_X_X_X private_172_16_X_X private_192_168_X_X) => sub {
+    my ($next, $self, @args) = @_;
+    $self->gungho->agent->set_always(request => HTTP::Response->new(200));
+    $next->($self, @args);
+    $self->gungho->agent->unmock('request');
+};
+
+sub private_127_X_X_X :Test :Plan(2) {
+    my $self = shift;
+    lives_ok {
+        $self->get_error('http://127.0.0.1');
+    };
 }
 
-sub private_127_X_X_X :Test {
-    my $self = shift;
-    my $res = $self->fetch(HTTP::Request->new(GET => 'http://127.0.0.1'));
-    ok($res->is_error);
-}
-
-sub private_172_16_X_X :Test :Plan(4) {
+sub private_172_16_X_X :Test :Plan(5) {
     my $self = shift;
 
-    foreach my $host qw(172.16.1.1 172.31.1.1) {
-        my $res = $self->fetch(HTTP::Request->new(GET => "http://$host"));
-        if (! ok($res->is_error)) {
-            note($res->as_string);
+    lives_ok {
+        foreach my $host qw(172.16.1.1 172.31.1.1) {
+            $self->get_error("http://$host");
         }
-    }
-    foreach my $host qw(172.15.1.1 172.32.1.1) {
-        my $res = $self->fetch(HTTP::Request->new(GET => "http://$host"));
-        if (! ok($res->is_success)) {
-            note($res->as_string);
+        foreach my $host qw(172.15.1.1 172.32.1.1) {
+            $self->get_ok("http://$host")
         }
-    }
+    };
 }
 
-sub private_192_168_X_X :Test :Plan(2) {
+sub private_192_168_X_X :Test :Plan(3) {
     my $self = shift;
-    foreach my $host qw(192.168.1.1 192.168.51.14) {
-        my $res = $self->fetch(HTTP::Request->new(GET => "http://$host"));
-        ok($res->is_error);
+    lives_ok {
+        foreach my $host qw(192.168.1.1 192.168.51.14) {
+            $self->get_error("http://$host");
+        }
     }
 }
 
