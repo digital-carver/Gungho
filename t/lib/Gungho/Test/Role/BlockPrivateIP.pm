@@ -1,19 +1,19 @@
-
-package Gungho::Test::Live;
-use Moose;
+package Gungho::Test::Role::BlockPrivateIP;
+use Moose::Role;
+use parent 'Test::FITesque::Fixture';
 use namespace::clean -except => qw(meta);
 use Test::More;
 use Test::MockObject;
 use LWP::UserAgent;
 
-BEGIN { extends 'Gungho::Test::Fixture' };
+with 'Gungho::Test::Fixture';
 
-override _build_traits => sub {
-    return [
-        'Engine::Embed',
-        'Trait::BlockPrivateIP',
-#        'Trait::RobotRules'
-    ]
+after setup => sub {
+    my $self = shift;
+    $self->add_trait($_) for qw(
+        Engine::Embed
+        Trait::BlockPrivateIP
+    );
 };
 
 sub _build_agent_args {
@@ -22,12 +22,6 @@ sub _build_agent_args {
             LWP::UserAgent->new()
         )->set_always( request => HTTP::Response->new(200, "OK") )
     ]
-}
-
-sub search_cpan_org :Test {
-    my $self = shift;
-    my $res = $self->fetch(HTTP::Request->new(GET => 'http://search.cpan.org'));
-    ok($res->is_success);
 }
 
 sub private_127_X_X_X :Test {
