@@ -41,3 +41,5 @@ sub is_me {
 
 __PACKAGE__->meta->make_immutable;
 
+1;
+

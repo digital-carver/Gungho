@@ -39,11 +39,12 @@ sub format_message {
     return POSIX::strftime('[%Y-%m-%d %H:%M:%S] ') . "@_\n"
 }
 
-sub log {
+sub log { ## no critic
     my $self = shift;
     my $fh   = $self->fh();
 
     print $fh $self->format_message(@_);
+    return ();
 }
 
 

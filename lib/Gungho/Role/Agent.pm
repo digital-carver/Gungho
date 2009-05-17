@@ -1,4 +1,3 @@
-package Gungho::Exception::RedoRequest;
 package Gungho::Role::Agent;
 use Moose::Role;
 use Gungho::Exception;

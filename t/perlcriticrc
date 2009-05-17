@@ -1,2 +1,8 @@
 severity = 4
-verbose = 4
+verbose  = 4
+
+[TestingAndDebugging::RequireUseStrict]
+equivalent_modules = Moose, Moose::Role, MooseX::Singleton
+
+[TestingAndDebugging::RequireUseWarnings]
+equivalent_modules = Moose, Moose::Role, MooseX::Singleton

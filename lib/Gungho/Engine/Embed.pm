@@ -19,7 +19,7 @@ has requests => (
     }
 );
 
-sub _build_requests { [] }
+sub _build_requests { return [] }
 
 sub _build_agent {
     Class::MOP::load_class("LWP::UserAgent");

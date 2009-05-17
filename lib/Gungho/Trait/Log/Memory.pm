@@ -16,9 +16,10 @@ has logs => (
     }
 );
 
-sub log {
+sub log { ## no critic
     my $self = shift;
     $self->add_log([ @_ ]);
+    return ();
 }
 
 1;
