@@ -1,6 +1,7 @@
 package Gungho::Engine::Embed;
 use Moose::Role;
 use MooseX::AttributeHelpers;
+use namespace::clean -except => qw(meta);
 
 with
     'Gungho::Role::Engine',

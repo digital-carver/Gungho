@@ -1,5 +1,7 @@
+package Gungho::Exception::RedoRequest;
 package Gungho::Role::Agent;
 use Moose::Role;
+use Gungho::Exception;
 use namespace::clean -except => qw(meta);
 
 with 'MooseX::Traits';
@@ -34,14 +36,21 @@ sub fetch {
 
     my $res;
     local $@;
-    eval {
-        $self->prepare_request($req);
-        $self->verify_request($req);
-        $res = $self->agent->request($req);
-        $self->fixup_response($res);
-    };
-    if (my $e = $@) {
-        $res = HTTP::Response->new(500, $e);
+
+    GUNGHO_FETCH: {
+        eval {
+            $self->prepare_request($req);
+            $self->verify_request($req);
+            $res = $self->agent->request($req);
+            $self->fixup_response($res);
+        };
+        if (my $e = $@) {
+            if (blessed $e && $e->isa('Gungho::Exception::RedoRequest')) {
+                redo GUNGHO_FETCH;
+            } else {
+                $res = HTTP::Response->new(500, $e);
+            }
+        }
     }
     return $res;
 }
@@ -52,4 +61,3 @@ sub handle_response {}
 sub fixup_response {}
 
 1;
-

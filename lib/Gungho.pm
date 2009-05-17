@@ -1,6 +1,8 @@
 package Gungho;
 use 5.008;
 use Moose;
+use namespace::clean -except => qw(meta);
+
 with 'MooseX::Traits';
 
 has '+_trait_namespace' => ( default => 'Gungho' );
@@ -17,7 +19,7 @@ sub BUILDARGS {
     return $args;
 }
 
-1;
+__PACKAGE__->meta->make_immutable();
 
 __END__
 

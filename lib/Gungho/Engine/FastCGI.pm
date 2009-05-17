@@ -1,6 +1,7 @@
 package Gungho::Engine::FastCGI;
 use Moose::Role;
 use FCGI;
+use namespace::clean -except => qw(meta);
 
 with 'Gungho::Role::Engine';
 

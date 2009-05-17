@@ -1,5 +1,6 @@
 package Gungho::Trait::Log;
 use Moose::Role;
+use namespace::clean -except => qw(meta);
 
 around fetch => sub {
     my ($next, $self, $req) = @_;

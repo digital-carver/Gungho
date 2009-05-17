@@ -12,7 +12,6 @@ requires 'MooseX::AttributeHelpers';
 requires 'MooseX::Traits';
 requires 'Net::DNS';
 requires 'Regexp::Common';
-requires 'TryCatch';
 
 test_requires 'Test::More' => '0.82';
 test_requires 'Test::UseAllModules';
