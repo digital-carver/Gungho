@@ -1,6 +1,7 @@
 package Gungho::Role::Agent;
 use Moose::Role;
 use Gungho::Exception;
+use Gungho::Response;
 use namespace::clean -except => qw(meta);
 
 with 'MooseX::Traits';
@@ -41,13 +42,17 @@ sub fetch {
             $self->prepare_request($req);
             $self->verify_request($req);
             $res = $self->agent->request($req);
+
+            # coerce this response object to our own object
+            $res = Gungho::Response->new_from_response($res);
+
             $self->fixup_response($res);
         };
-        if (my $e = $@) {
+        if (my $e = $@){
             if (blessed $e && $e->isa('Gungho::Exception::RedoRequest')) {
                 redo GUNGHO_FETCH;
             } else {
-                $res = HTTP::Response->new(500, $e);
+                $res = Gungho::Response->new(500, $e);
             }
         }
     }

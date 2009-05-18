@@ -18,8 +18,8 @@ after fixup_response => sub {
     my ($self, $res) = @_;
 
     if ($res->is_success && $res->content_type =~ m{^text/html}i) {
-        my $rules = $self->robots_meta->parse_rules( $res->content );
-        $res->notes( robots_meta => $rules );
+        my $rules = $self->robots_meta_parser->parse_rules( $res->content );
+        $res->notes_set( robots_meta => $rules );
     }
 };
 

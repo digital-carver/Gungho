@@ -5,6 +5,7 @@ use namespace::clean -except => qw(meta);
 use HTTP::Request;
 use Test::More;
 use Test::MockObject::Extends;
+use LWP::UserAgent;
 
 has stash => (
     metaclass => 'Collection::Hash',

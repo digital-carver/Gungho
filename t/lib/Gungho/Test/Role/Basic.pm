@@ -7,9 +7,15 @@ use Test::More;
 
 with 'Gungho::Test::Fixture';
 
+sub get {
+    my ($self, $uri) = @_;
+    my $res = $self->gungho->fetch(HTTP::Request->new(GET => $uri));
+    return $res;
+}
+
 sub get_ok {
     my ($self, $uri) = @_;
-    my $res  = $self->gungho->fetch(HTTP::Request->new(GET => $uri));
+    my $res  = $self->get($uri);
     my $ok   =  ok($res->is_success, "request is success" );
     if (!$ok) {
        note(explain($res));
